@@ -5,9 +5,9 @@ import java.util.Scanner;
 // Done bind the result to 'r'
 // Done add full identifier support. Where words can be used.
 // Done Instead of binding the result with 'r' do it jShell style.
+// Done Add git.
 // TODO Verify the user input.
 // TODO Add more operator support, like '^', '!'.
-// TODO Use git.
 // TODO add method comments.
 
 
