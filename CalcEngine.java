@@ -6,8 +6,9 @@ import java.util.Scanner;
 // Done add full identifier support. Where words can be used.
 // Done Instead of binding the result with 'r' do it jShell style.
 // Done Add git.
+// Done Add more operator support, like '^', '!'.
+// TODO add parentheses checker
 // TODO Verify the user input.
-// TODO Add more operator support, like '^', '!'.
 // TODO add method comments.
 
 
@@ -49,6 +50,9 @@ public class CalcEngine {
                     break;
                 case 3:
                     prompt = currentSession;
+                    break;
+                case 4:
+                    System.out.println("Identifier used but not declared.");
                     break;
             }
 

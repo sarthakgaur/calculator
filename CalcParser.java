@@ -47,7 +47,6 @@ class CalcParser {
         try {
             insertIdentifiers();
         } catch (MissingIdentifier e) {
-            System.out.println("Identifier used but not declared.");
             return new ExpressionMessage(4, "");
         }
 
@@ -69,7 +68,7 @@ class CalcParser {
 
     private void insertIdentifiers() throws MissingIdentifier {
         StringBuilder localExpression = new StringBuilder();
-//        System.out.println("original expression: " + expression);
+        // System.out.println("original expression: " + expression);
 
         String rx = "(\\$[0-9]+)|([a-z]+)";
         Pattern p = Pattern.compile(rx);
@@ -86,6 +85,6 @@ class CalcParser {
 
         m.appendTail(localExpression);
         expression = localExpression.toString();
-//        System.out.println("new expression: " + expression);
+        // System.out.println("new expression: " + expression);
     }
 }

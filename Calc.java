@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,12 +23,14 @@ class Calc {
         prec.put('-', 1);
         prec.put('*', 2);
         prec.put('/', 2);
+        prec.put('^', 3);
+        prec.put('!', 4);
 
         StringBuilder digits = new StringBuilder();
 
         for (int i = 0; i < expression.length(); i++) {
             Character currentChar = expression.charAt(i);
-//            System.out.println("currentChar " + currentChar);
+            // System.out.println("currentChar " + currentChar);
 
             if (Character.isDigit(currentChar) || currentChar.equals('.')) {
                 digits.append(currentChar);
@@ -63,23 +67,29 @@ class Calc {
             postFixList.add(Character.toString(topOfStack));
         }
 
-//            System.out.println(Arrays.toString(opStack.toArray()));
-//            System.out.println(Arrays.toString(postFixList.toArray()));
+        // System.out.println(Arrays.toString(opStack.toArray()));
+        // System.out.println(Arrays.toString(postFixList.toArray()));
 
         return postFixList;
     }
 
     private String evaluate(ArrayList<String> postFixList) {
         Stack<String> evalStack = new Stack<>();
-        String[] operators = {"+", "-", "*", "/"};
+        String[] operators = {"+", "-", "*", "/", "^", "!"};
+        String res;
 
         for (String token: postFixList) {
             if (isNumber(token)) {
                 evalStack.push(token);
             } else if (Arrays.asList(operators).contains(token)) {
-                String n2 = evalStack.pop();
-                String n1 = evalStack.pop();
-                String res = calculate(n1, token, n2);
+                if (token.equals("!")) {
+                    String n1 = evalStack.pop();
+                    res = calculate(n1, token, "0");
+                } else {
+                    String n2 = evalStack.pop();
+                    String n1 = evalStack.pop();
+                    res = calculate(n1, token, n2);
+                }
                 evalStack.push(res);
             }
         }
@@ -98,17 +108,15 @@ class Calc {
     }
 
     private String resultCleaner(String result) {
-        double dResult = Double.parseDouble(result);
-        if (dResult % 1 == 0) {
-            return String.valueOf((int) dResult);
-        }
-        return result;
+        BigDecimal bigResult = new BigDecimal(result);
+        return bigResult.stripTrailingZeros().toPlainString();
     }
 
     private String calculate(String x, String operator, String y) {
         double a = Double.parseDouble(x);
         double b = Double.parseDouble(y);
         double res = 0;
+        String factRes = "";
 
         switch (operator) {
             case "+":
@@ -123,8 +131,27 @@ class Calc {
             case "/":
                 res = a / b;
                 break;
+            case "^":
+                res = Math.pow(a, b);
+                break;
+            case "!":
+                factRes = factorial(a);
+        }
+
+        if (!factRes.equals("")) {
+            return factRes;
         }
 
         return Double.toString(res);
+    }
+
+    private static String factorial(Double n) {
+        BigInteger fact = BigInteger.valueOf(1);
+
+        for (long l = n.longValue(); l > 1; l--) {
+            fact = fact.multiply(BigInteger.valueOf(l));
+        }
+
+        return fact.toString();
     }
 }
