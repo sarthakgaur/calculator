@@ -7,6 +7,7 @@ import java.util.Scanner;
 // Done Instead of binding the result with 'r' do it jShell style.
 // Done Add git.
 // Done Add more operator support, like '^', '!'.
+// Done Use improved regex (\$[\w]+)|([a-zA-Z]+[\w]*)
 // TODO add parentheses checker
 // TODO Verify the user input.
 // TODO add method comments.
@@ -22,37 +23,36 @@ public class CalcEngine {
     private void start() {
         Scanner sc = new Scanner(System.in);
 
-        final String currentSession = "c: ";
-        final String newSession = "n: ";
-        String prompt = newSession;
-
-        int status;
+        final String CURRENT_SESSION = "c: ";
+        final String NEW_SESSION = "n: ";
+        String prompt = NEW_SESSION;
 
         while (true) {
             System.out.print(prompt);
             expression = sc.nextLine();
 
             ExpressionMessage statusM = cParse.checkExpression(expression);
-            status = statusM.getStatus();
+            int status = statusM.getStatus();
             expression = statusM.getExpression();
+            // System.out.println("Parsed expression: " + expression);
 
             switch (status) {
                 case 0:
                     resultHandler();
-                    prompt = currentSession;
+                    prompt = CURRENT_SESSION;
                     break;
                 case 1:
                     System.exit(0);
                     break;
                 case 2:
                     resultsSaved = 0;
-                    prompt = newSession;
+                    prompt = NEW_SESSION;
                     break;
                 case 3:
-                    prompt = currentSession;
+                    prompt = CURRENT_SESSION;
                     break;
                 case 4:
-                    System.out.println("Identifier used but not declared.");
+                    System.out.println(expression);
                     break;
             }
 

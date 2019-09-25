@@ -1,5 +1,4 @@
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,6 +24,7 @@ class Calc {
         prec.put('/', 2);
         prec.put('^', 3);
         prec.put('!', 4);
+        prec.put('~', 5);
 
         StringBuilder digits = new StringBuilder();
 
@@ -67,9 +67,7 @@ class Calc {
             postFixList.add(Character.toString(topOfStack));
         }
 
-        // System.out.println(Arrays.toString(opStack.toArray()));
         // System.out.println(Arrays.toString(postFixList.toArray()));
-
         return postFixList;
     }
 
@@ -82,7 +80,7 @@ class Calc {
             if (isNumber(token)) {
                 evalStack.push(token);
             } else if (Arrays.asList(operators).contains(token)) {
-                if (token.equals("!")) {
+                if (token.equals("!") || token.equals("~")) {
                     String n1 = evalStack.pop();
                     res = calculate(n1, token, "0");
                 } else {
@@ -98,9 +96,9 @@ class Calc {
         return resultCleaner(result);
     }
 
-    private boolean isNumber(String num) {
+    static boolean isNumber(String num) {
         try {
-            Double.parseDouble(num);
+            new BigDecimal(num);
             return true;
         } catch (NumberFormatException e) {
             return false;
@@ -113,45 +111,44 @@ class Calc {
     }
 
     private String calculate(String x, String operator, String y) {
-        double a = Double.parseDouble(x);
-        double b = Double.parseDouble(y);
-        double res = 0;
-        String factRes = "";
+        BigDecimal a = new BigDecimal(x);
+        BigDecimal b = new BigDecimal(y);
 
         switch (operator) {
             case "+":
-                res = a + b;
+                a = a.add(b);
                 break;
             case "-":
-                res = a - b;
+                a = a.subtract(b);
                 break;
             case "*":
-                res = a * b;
+                a = a.multiply(b);
                 break;
             case "/":
-                res = a / b;
+                a = a.divide(b);
                 break;
             case "^":
-                res = Math.pow(a, b);
+                a = a.pow(b.intValue());
                 break;
             case "!":
-                factRes = factorial(a);
+                a = factorial(a);
+                break;
+            case "~":
+                a = a.multiply(BigDecimal.valueOf(-1));
+                break;
         }
 
-        if (!factRes.equals("")) {
-            return factRes;
-        }
-
-        return Double.toString(res);
+        return a.toString();
     }
 
-    private static String factorial(Double n) {
-        BigInteger fact = BigInteger.valueOf(1);
+    private static BigDecimal factorial(BigDecimal n) {
+        BigDecimal fact = BigDecimal.valueOf(1);
 
-        for (long l = n.longValue(); l > 1; l--) {
-            fact = fact.multiply(BigInteger.valueOf(l));
+        while (n.compareTo(BigDecimal.valueOf(1)) > 0) {
+            fact = fact.multiply(n);
+            n = n.subtract(BigDecimal.valueOf(1));
         }
 
-        return fact.toString();
+        return fact;
     }
 }

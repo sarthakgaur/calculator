@@ -3,7 +3,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-class MissingIdentifier extends Exception {}
+class IdentifierException extends Exception {}
 
 
 class ExpressionMessage {
@@ -28,6 +28,8 @@ class ExpressionMessage {
 
 class CalcParser {
 
+    private static final String REG_EX = "(\\$[\\w]+)|([a-zA-Z]+[\\w]*)";
+    private static final Pattern REG_PATTERN = Pattern.compile(REG_EX);
     private HashMap<String, String> identifiers = new HashMap<>();
     private String expression;
 
@@ -40,14 +42,19 @@ class CalcParser {
             identifiers = new HashMap<String, String>();
             return new ExpressionMessage(2, "");
         } else if (userExpression.contains("=")) {
-            createIdentifiers();
-            return new ExpressionMessage(3, "");
+            try {
+                createIdentifiers();
+                return new ExpressionMessage(3, "");
+            } catch (IdentifierException e) {
+                return new ExpressionMessage(4, "Invalid Identifier.");
+            }
         }
 
         try {
             insertIdentifiers();
-        } catch (MissingIdentifier e) {
-            return new ExpressionMessage(4, "");
+            handleUnary();
+        } catch (IdentifierException e) {
+            return new ExpressionMessage(4, "Invalid Identifier.");
         }
 
         return new ExpressionMessage(0, expression);
@@ -57,34 +64,51 @@ class CalcParser {
         identifiers.put(key, value);
     }
 
-    private void createIdentifiers() {
+    private void createIdentifiers() throws IdentifierException {
         String[] identifiersList = expression.split(",");
+        String nameRegex = "(^[a-zA-Z]+[\\w]*)|(^\\$[\\w]+)";
 
         for (String token: identifiersList) {
             String[] tokenSplit = token.split("=");
-            identifiers.put(tokenSplit[0], tokenSplit[1]);
+            String name = tokenSplit[0].trim();
+            String value = tokenSplit[1].trim();
+
+            if (!(name.matches(nameRegex) && Calc.isNumber(value))) {
+                throw new IdentifierException();
+            }
+
+            identifiers.put(name, value);
         }
     }
 
-    private void insertIdentifiers() throws MissingIdentifier {
+    private void insertIdentifiers() throws IdentifierException {
         StringBuilder localExpression = new StringBuilder();
-        // System.out.println("original expression: " + expression);
+        Matcher regMatcher = REG_PATTERN.matcher(expression);
 
-        String rx = "(\\$[0-9]+)|([a-z]+)";
-        Pattern p = Pattern.compile(rx);
-        Matcher m = p.matcher(expression);
+        while (regMatcher.find()) {
+            String prefixRep = "";
+            String repString = identifiers.get(regMatcher.group());
+            int matchIndex = regMatcher.start();
 
-        while (m.find()) {
-            String repString = identifiers.get(m.group());
             if (repString != null) {
-                m.appendReplacement(localExpression, repString);
+                if (matchIndex > 0) {
+                    char preChar = expression.charAt(matchIndex - 1);
+                    if (Character.isDigit(preChar)) { prefixRep = "*"; }
+                }
+                regMatcher.appendReplacement(localExpression, prefixRep + repString);
             } else {
-                throw new MissingIdentifier();
+                throw new IdentifierException();
             }
         }
+        regMatcher.appendTail(localExpression);
 
-        m.appendTail(localExpression);
         expression = localExpression.toString();
-        // System.out.println("new expression: " + expression);
+    }
+
+    private void handleUnary() {
+        expression = expression.replaceAll("\\s+", "");
+        expression = expression.replaceAll("-", "~");
+        expression = expression.replaceAll("(\\d)~(\\d)", "$1-$2");
+        // System.out.println("handleUnary2: " + expression);
     }
 }
