@@ -1,11 +1,10 @@
+package Calculator;
+
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Stack;
+import java.util.*;
 
 
-class Calc {
+class Evaluator {
 
     String calcExpr(String expression) {
         ArrayList<String> postFixList = getPostFix(expression);

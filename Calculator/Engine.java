@@ -1,3 +1,5 @@
+package Calculator;
+
 import java.util.Scanner;
 
 
@@ -8,14 +10,15 @@ import java.util.Scanner;
 // Done Add git.
 // Done Add more operator support, like '^', '!'.
 // Done Use improved regex (\$[\w]+)|([a-zA-Z]+[\w]*)
-// TODO add parentheses checker
-// TODO Verify the user input.
+// Done add parentheses checker
+// Done Verify the user input.
 // TODO add method comments.
+// TODO Refactor Evaluator class and parser class.
 
 
-public class CalcEngine {
+class Engine {
 
-    private Calc calc = new Calc();
+    private Evaluator evaluator = new Evaluator();
     private CalcParser cParse = new CalcParser();
     private int resultsSaved = 0;
     private String expression;
@@ -61,7 +64,7 @@ public class CalcEngine {
     }
 
     private void resultHandler() {
-        String result = calc.calcExpr(expression);
+        String result = evaluator.calcExpr(expression);
         resultsSaved++;
         String resultPrompt = "$" + resultsSaved;
         cParse.addIdentifier(resultPrompt, result);
@@ -69,7 +72,7 @@ public class CalcEngine {
     }
 
     public static void main(String[] args) {
-        CalcEngine cEngine = new CalcEngine();
+        Engine cEngine = new Engine();
         cEngine.start();
     }
 }
