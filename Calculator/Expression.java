@@ -1,6 +1,8 @@
 package Calculator;
 
-
+/**
+ * Tracks the state of the expression.
+ */
 class Expression {
 
     private boolean numberPresent;
@@ -14,6 +16,7 @@ class Expression {
         if (!numberPresent) {
             numberPresent = true;
         } else if (operatorPresent) {
+            // if operator is present, make the entire expression a number.
             operatorPresent = false;
         } else {
             throw new ExpressionFormatException();
@@ -29,6 +32,9 @@ class Expression {
         }
     }
 
+    /**
+     * Modify open parenthesis count.
+     */
     void modParCount(int n) {
         openParCount += n;
         parStateChanged = true;
@@ -39,8 +45,13 @@ class Expression {
         return stateChanged;
     }
 
+    /**
+     * Get the current state of the expression.
+     * @return a boolean value.
+     */
     boolean getState() {
         if (!numberPresent && !operatorPresent) {
+            // if parenthesis state is changed a number need to be present
             state = !parStateChanged;
         } else if (numberPresent && operatorPresent) {
             state = false;
@@ -48,6 +59,7 @@ class Expression {
             state = true;
         }
 
+        // return true only if the state is true and parentheses are balanced
         return state && openParCount == 0;
     }
 }

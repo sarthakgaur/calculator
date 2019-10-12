@@ -5,66 +5,26 @@ import java.util.*;
 
 class Verifier {
 
-    private static Set<Character> validSymbols = Set.of('+', '-', '*', '/', '^', '!', '(', ')');
     private static Set<String> validOperators = Set.of("+", "-", "*", "/", "^");
 
-    static boolean verify(String expression) {
-        boolean res = false;
-        try {
-            ArrayList<String> tokens = generateTokens(expression);
-            // System.out.println(tokens);
-            res = isComputable(tokens);
-        } catch (NumberFormatException | InvalidSymbolException e) {
-            // System.out.println("");
-        }
-        return res;
-    }
-
-    static private ArrayList<String> generateTokens(String expression)
-            throws NumberFormatException, InvalidSymbolException {
-        var tokens = new ArrayList<String>();
-        var digits = new StringBuilder();
-
-        for (int i = 0; i < expression.length(); i++) {
-            Character token = expression.charAt(i);
-
-            if (Character.isDigit(token) || token.equals('.') || token.equals('~')) {
-                if (token.equals('~')) {
-                    digits.append('-');
-                } else {
-                    digits.append(token.toString());
-                }
-            } else if (validSymbols.contains(token)) {
-                if (digits.length() > 0) {
-                    if (Evaluator.isNumber(digits.toString())) {
-                        tokens.add(digits.toString());
-                        digits = new StringBuilder();
-                    } else {
-                        throw new NumberFormatException();
-                    }
-                }
-                tokens.add(token.toString());
-            } else {
-                throw new InvalidSymbolException();
-            }
-        }
-
-        if (digits.length() > 0) {
-            if (Evaluator.isNumber(digits.toString())) {
-                tokens.add(digits.toString());
-            } else {
-                throw new NumberFormatException();
-            }
-        }
-
-        return tokens;
-    }
-
-    static private boolean isComputable(ArrayList<String> tokens) {
+    /**
+     * Passes tokens and the starting offset to isComputable to verify the expression
+     *
+     * @param tokens contains valid numbers and symbols.
+     * @return a boolean value returned by isComputable.
+     */
+    static boolean verify(ArrayList<String> tokens) {
         return isComputable(tokens, new int[] {0});
     }
 
-    static private boolean isComputable(ArrayList<String> tokens, int[] offset) {
+    /**
+     * Verifies the state of expression and its nested expressions recursively.
+     *
+     * @param tokens a list containing valid numbers and symbols.
+     * @param offset keeps track of the current position in the list.
+     * @return a boolean value denoting whether the expression is valid.
+     */
+    private static boolean isComputable(ArrayList<String> tokens, int[] offset) {
         var localExpression = new Expression();
         var subState = true;
 
@@ -78,6 +38,7 @@ class Verifier {
                     localExpression.addOperator(token);
                 } else if (token.equals("(")) {
                     if (localExpression.hasStateChanged()) {
+                        // recurse if the state of the current expression has changed
                         subState = isComputable(tokens, offset);
                         if (!subState) {
                             return false;
@@ -85,9 +46,11 @@ class Verifier {
                             localExpression.addNumber();
                         }
                     } else {
+                        // if state is unchanged increase open parenthesis count
                         localExpression.modParCount(1);
                     }
                 } else if (token.equals(")")) {
+                    // increase open parenthesis count
                     localExpression.modParCount(-1);
                     return localExpression.getState();
                 }

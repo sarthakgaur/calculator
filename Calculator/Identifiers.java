@@ -1,57 +1,12 @@
 package Calculator;
 
 import java.util.HashMap;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-
-/**
- * Helps in parsing the expression provided to it. Supports the full use of identifiers.
- */
-class CalcParser {
+public class Identifiers {
 
     private HashMap<String, String> identifiers = new HashMap<>();
-    private String expression;
-
-    /**
-     * Checks the received expression and sends ExpressionMessage to the caller accordingly.
-     * The following list explains all the status codes.
-     * 1. 1 -> close the program
-     * 2. 2 -> delete all identifiers
-     * 3. 3 -> successful creation of identifiers
-     * 4. 4 -> identifier creation failed
-     *
-     *
-     * @param userExpression A string containing a mathematical expression or identifier
-     *                       expression.
-     *
-     * @return A ExpressionMessage object containing the required status and message.
-     */
-    ExpressionMessage checkExpression(String userExpression) {
-        expression = userExpression.replaceAll("\\s+", "");
-
-        if (userExpression.equals("q")) {
-            return new ExpressionMessage(1, "");
-        } else if (userExpression.equals("n")) {
-            identifiers = new HashMap<String, String>();
-            return new ExpressionMessage(2, "");
-        } else if (userExpression.contains("=")) {
-            try {
-                createIdentifiers();
-                return new ExpressionMessage(3, "");
-            } catch (IdentifierException e) {
-                return new ExpressionMessage(4, "Invalid Identifier.");
-            }
-        }
-
-        try {
-            replaceIdentifiers();
-            handleUnary();
-        } catch (IdentifierException e) {
-            return new ExpressionMessage(4, "Invalid Identifier.");
-        }
-
-        return new ExpressionMessage(0, expression);
-    }
 
     /**
      * Store identifiers in the hash map.
@@ -59,8 +14,12 @@ class CalcParser {
      * @param key Identifier that can be used to fetch the value.
      * @param value Value associated with the key.
      */
-    void addIdentifier(String key, String value) {
+    void add(String key, String value) {
         identifiers.put(key, value);
+    }
+
+    void clear() {
+        identifiers = new HashMap<String, String>();
     }
 
     /**
@@ -70,7 +29,7 @@ class CalcParser {
      * @throws IdentifierException If the identifier doesn't match the identifier regex or
      * the value is not a number.
      */
-    private void createIdentifiers() throws IdentifierException {
+    void create(String expression) throws IdentifierException {
         String[] identifiersList = expression.split(",");
         String IdentifierRegex = "(?:^[a-zA-Z][$\\w]*)|(?:^\\$[\\w]+)";
 
@@ -89,11 +48,11 @@ class CalcParser {
 
     /**
      * Replaces identifiers with the values in the expression. The method also handles
-     * implicit multiplication when are grouped.
+     * implicit multiplication.
      *
      * @throws IdentifierException If the the hash map look up fails.
      */
-    private void replaceIdentifiers() throws IdentifierException {
+    String replace(String expression) throws IdentifierException {
         String IdentifierRegex = "(?:\\$[$\\w]+)|(?:[a-zA-Z]+[$\\w]*)";
         Pattern IdentifierPattern = Pattern.compile(IdentifierRegex);
         Matcher IdentifierMatcher = IdentifierPattern.matcher(expression);
@@ -120,14 +79,6 @@ class CalcParser {
 
         expression = localExpression.toString();
         expression = expression.replaceAll("(\\d)(\\()", "$1*$2");
-    }
-
-    /**
-     * Handles the unary minus operator.
-     */
-    private void handleUnary() {
-        expression = expression.replaceAll("-", "~");
-        expression = expression.replaceAll("(\\d)~(\\d)", "$1-$2");
-        // System.out.println("handleUnary2: " + expression);
+        return expression;
     }
 }

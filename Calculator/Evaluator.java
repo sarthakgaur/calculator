@@ -6,80 +6,65 @@ import java.util.*;
 
 class Evaluator {
 
-    String calcExpr(String expression) {
-        ArrayList<String> postFixList = getPostFix(expression);
+    private static final Set<String> validOperators = Set.of("+", "-", "*", "/", "^", "!");
+
+    static String calculate(ArrayList<String> tokens) {
+        ArrayList<String> postFixList = getPostFix(tokens);
         return evaluate(postFixList);
     }
 
-    private ArrayList<String> getPostFix(String expression) {
-        HashMap<Character, Integer> prec = new HashMap<>();
+    private static ArrayList<String> getPostFix(ArrayList<String> tokens) {
+        HashMap<String, Integer> prec = new HashMap<>();
         ArrayList<String> postFixList = new ArrayList<>();
-        Stack<Character> opStack = new Stack<>();
+        Stack<String> opStack = new Stack<>();
 
-        prec.put('(', 0);
-        prec.put('+', 1);
-        prec.put('-', 1);
-        prec.put('*', 2);
-        prec.put('/', 2);
-        prec.put('^', 3);
-        prec.put('!', 4);
-        prec.put('~', 5);
+        prec.put("(", 0);
+        prec.put("+", 1);
+        prec.put("-", 1);
+        prec.put("*", 2);
+        prec.put("/", 2);
+        prec.put("^", 3);
+        prec.put("!", 4);
 
-        StringBuilder digits = new StringBuilder();
+        for (String token : tokens) {
 
-        for (int i = 0; i < expression.length(); i++) {
-            Character currentChar = expression.charAt(i);
-            // System.out.println("currentChar " + currentChar);
-
-            if (Character.isDigit(currentChar) || currentChar.equals('.')) {
-                digits.append(currentChar);
-            } else if (!digits.toString().equals("")) {
-                postFixList.add(digits.toString());
-                digits = new StringBuilder();
-            }
-
-            if (currentChar.equals('(')) {
-                opStack.push(currentChar);
-            } else if (currentChar.equals(')')) {
-                Character topOfStack = opStack.pop();
-
-                while (!opStack.isEmpty() && !topOfStack.equals('(')) {
-                    postFixList.add(Character.toString(topOfStack));
+            if (isNumber(token)) {
+                postFixList.add(token);
+            } else if (token.equals("(")) {
+                opStack.push(token);
+            } else if (token.equals(")")) {
+                String topOfStack = opStack.pop();
+                while (!opStack.isEmpty() && !topOfStack.equals("(")) {
+                    postFixList.add(topOfStack);
                     topOfStack = opStack.pop();
                 }
-            } else if (prec.containsKey(currentChar)) {
-
-                while (!opStack.isEmpty() && prec.get(opStack.peek()) >= prec.get(currentChar)) {
-                    Character topOfStack = opStack.pop();
-                    postFixList.add(Character.toString(topOfStack));
+            } else if (prec.containsKey(token)) {
+                while (!opStack.isEmpty() && prec.get(opStack.peek()) >= prec.get(token)) {
+                    String topOfStack = opStack.pop();
+                    postFixList.add(topOfStack);
                 }
-                opStack.push(currentChar);
+                opStack.push(token);
             }
-        }
-
-        if (digits.length() != 0) {
-            postFixList.add(digits.toString());
         }
 
         while (!opStack.isEmpty()) {
-            Character topOfStack = opStack.pop();
-            postFixList.add(Character.toString(topOfStack));
+            String topOfStack = opStack.pop();
+            postFixList.add(topOfStack);
         }
 
-        // System.out.println(Arrays.toString(postFixList.toArray()));
+        // System.out.println("postFix: " + postFixList.toString());
         return postFixList;
     }
 
-    private String evaluate(ArrayList<String> postFixList) {
+    private static String evaluate(ArrayList<String> postFixTokens) {
         Stack<String> evalStack = new Stack<>();
-        String[] operators = {"+", "-", "*", "/", "^", "!"};
-        String res;
 
-        for (String token: postFixList) {
+        for (String token : postFixTokens) {
             if (isNumber(token)) {
                 evalStack.push(token);
-            } else if (Arrays.asList(operators).contains(token)) {
-                if (token.equals("!") || token.equals("~")) {
+            } else if (validOperators.contains(token)) {
+                String res;
+                if (token.equals("!")) {
                     String n1 = evalStack.pop();
                     res = calculate(n1, token, "0");
                 } else {
@@ -95,59 +80,54 @@ class Evaluator {
         return resultCleaner(result);
     }
 
-    static boolean isNumber(String num) {
-        try {
-            new BigDecimal(num);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-    private String resultCleaner(String result) {
-        BigDecimal bigResult = new BigDecimal(result);
-        return bigResult.stripTrailingZeros().toPlainString();
-    }
-
-    private String calculate(String x, String operator, String y) {
-        BigDecimal a = new BigDecimal(x);
-        BigDecimal b = new BigDecimal(y);
+    private static String calculate(String x, String operator, String y) {
+        Double a = Double.valueOf(x);
+        Double b = Double.valueOf(y);;
 
         switch (operator) {
             case "+":
-                a = a.add(b);
+                a += b;
                 break;
             case "-":
-                a = a.subtract(b);
+                a -= b;
                 break;
             case "*":
-                a = a.multiply(b);
+                a *= b;
                 break;
             case "/":
-                a = a.divide(b);
+                a /= b;
                 break;
             case "^":
-                a = a.pow(b.intValue());
+                a = Math.pow(a, b);
                 break;
             case "!":
                 a = factorial(a);
-                break;
-            case "~":
-                a = a.multiply(BigDecimal.valueOf(-1));
                 break;
         }
 
         return a.toString();
     }
 
-    private static BigDecimal factorial(BigDecimal n) {
-        BigDecimal fact = BigDecimal.valueOf(1);
-
-        while (n.compareTo(BigDecimal.valueOf(1)) > 0) {
-            fact = fact.multiply(n);
-            n = n.subtract(BigDecimal.valueOf(1));
+    private static double factorial(double n) {
+        double fact = 1;
+        while (n > 1) {
+            fact *= n;
+            n--;
         }
-
         return fact;
+    }
+
+    private static String resultCleaner(String result) {
+        BigDecimal bigResult = new BigDecimal(result);
+        return bigResult.stripTrailingZeros().toPlainString();
+    }
+
+    static boolean isNumber(String num) {
+        try {
+            Double.valueOf(num);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

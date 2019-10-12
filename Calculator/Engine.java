@@ -1,5 +1,6 @@
 package Calculator;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 
@@ -12,15 +13,15 @@ import java.util.Scanner;
 // Done Use improved regex (\$[\w]+)|([a-zA-Z]+[\w]*)
 // Done add parentheses checker
 // Done Verify the user input.
+// Done Refactor Evaluator class and parser class.
 // TODO add method comments.
-// TODO Refactor Evaluator class and parser class.
 
 
 class Engine {
 
-    private Evaluator evaluator = new Evaluator();
-    private CalcParser cParse = new CalcParser();
-    private int resultsSaved = 0;
+    private Identifiers identifiers = new Identifiers();
+    private Checker checker = new Checker(identifiers);
+    private int resultCount = 0;
     private String expression;
 
     private void start() {
@@ -34,28 +35,29 @@ class Engine {
             System.out.print(prompt);
             expression = sc.nextLine();
 
-            ExpressionMessage statusM = cParse.checkExpression(expression);
-            int status = statusM.getStatus();
-            expression = statusM.getExpression();
-            // System.out.println("Parsed expression: " + expression);
+            Message message = checker.check(expression);
+            int status = message.getStatus();
+            String text = message.getText();
+            ArrayList<String> tokens = message.getTokens();
+            // System.out.println("tokens: " + tokens.toString());
 
             switch (status) {
                 case 0:
-                    resultHandler();
+                    resultHandler(tokens);
                     prompt = CURRENT_SESSION;
                     break;
                 case 1:
                     System.exit(0);
                     break;
                 case 2:
-                    resultsSaved = 0;
+                    resultCount = 0;
                     prompt = NEW_SESSION;
                     break;
                 case 3:
                     prompt = CURRENT_SESSION;
                     break;
                 case 4:
-                    System.out.println(expression);
+                    System.out.println(text);
                     break;
             }
 
@@ -63,16 +65,25 @@ class Engine {
         }
     }
 
-    private void resultHandler() {
-        String result = evaluator.calcExpr(expression);
-        resultsSaved++;
-        String resultPrompt = "$" + resultsSaved;
-        cParse.addIdentifier(resultPrompt, result);
+    private void resultHandler(ArrayList<String> tokens) {
+        String result = Evaluator.calculate(tokens);
+        resultCount++;
+        String resultPrompt = "$" + resultCount;
+        identifiers.add(resultPrompt, result);
         System.out.println(resultPrompt + " -> " + result);
     }
 
+    String run(String expression) {
+        Message message = checker.check(expression);
+        ArrayList<String> tokens = message.getTokens();
+        if (tokens == null) {
+            return "NA";
+        }
+        return Evaluator.calculate(tokens);
+    }
+
     public static void main(String[] args) {
-        Engine cEngine = new Engine();
-        cEngine.start();
+        Engine engine = new Engine();
+        engine.start();
     }
 }
