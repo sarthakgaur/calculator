@@ -31,41 +31,26 @@ class Checker {
      * @return A Message object containing the required status and message.
      */
     Message check(String expression) {
-        if (expression.equals("q")) {
-            return new Message(1, "");
-        } else if (expression.equals("n")) {
-            identifiers.clear();
-            return new Message(2, "");
-        } else if (expression.contains("=")) {
-            try {
-                identifiers.create(expression);
-                return new Message(3, "");
-            } catch (IdentifierException e) {
-                return new Message(4, "Invalid Identifier.");
-            }
-        }
-
-        ArrayList<String> tokens;
-        boolean validExpression;
-
         try {
-            expression = identifiers.replace(expression);
-            expression = handleUnary(expression);
-            tokens = generateTokens(expression);
-            validExpression = Verifier.verify(tokens);
-        } catch (IdentifierException e) {
-            return new Message(4, "Invalid Identifier.");
-        } catch (NumberFormatException e) {
-            return new Message(4, "Invalid Number.");
-        } catch (InvalidSymbolException e) {
-            return new Message(4, "Invalid Symbol.");
+            if (expression.equals("q")) {
+                return new Message(1);
+            } else if (expression.equals("n")) {
+                identifiers.clear();
+                return new Message(2);
+            } else if (expression.contains("=")) {
+                identifiers.create(expression);
+                return new Message(3);
+            } else {
+                expression = identifiers.replace(expression);
+                expression = handleImpMul(expression);
+                expression = handleUnary(expression);
+                ArrayList<String> tokens = generateTokens(expression);
+                Verifier.verify(tokens);
+                return new Message(0, tokens);
+            }
+        } catch (CalculatorException e) {
+            return new Message(4, e.getMessage());
         }
-
-        if (!validExpression) {
-            return new Message(4, "Invalid Expression");
-        }
-
-        return new Message(0, tokens);
     }
 
     /**
@@ -77,8 +62,13 @@ class Checker {
         return expression;
     }
 
+    private static String handleImpMul(String expression) {
+        expression = expression.replaceAll("(\\d)(\\()", "$1*$2");
+        return expression;
+    }
+
     private static ArrayList<String> generateTokens(String expression)
-            throws NumberFormatException, InvalidSymbolException {
+            throws InvalidNumberException, InvalidSymbolException {
         var tokens = new ArrayList<String>();
         var digits = new StringBuilder();
 
@@ -97,13 +87,13 @@ class Checker {
                         tokens.add(digits.toString());
                         digits = new StringBuilder();
                     } else {
-                        throw new NumberFormatException();
+                        throw new InvalidNumberException(digits.toString());
                     }
                 }
                 tokens.add(token.toString());
             } else {
-                if (!token.equals(" ")) {
-                    throw new InvalidSymbolException();
+                if (!token.equals(' ')) {
+                    throw new InvalidSymbolException(token);
                 }
             }
         }
@@ -112,7 +102,7 @@ class Checker {
             if (Evaluator.isNumber(digits.toString())) {
                 tokens.add(digits.toString());
             } else {
-                throw new NumberFormatException();
+                throw new InvalidNumberException(digits.toString());
             }
         }
 

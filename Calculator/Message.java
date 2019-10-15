@@ -5,12 +5,16 @@ import java.util.ArrayList;
 class Message {
 
     private int status;
-    private String text;
+    private String message;
     private ArrayList<String> tokens;
 
-    Message(int s, String t) {
+    Message(int s) {
         status = s;
-        text = t;
+    }
+
+    Message(int s, String m) {
+        status = s;
+        message = m;
     }
 
     Message(int s, ArrayList<String> t) {
@@ -22,8 +26,8 @@ class Message {
         return status;
     }
 
-    String getText() {
-        return text;
+    String getMessage() {
+        return message;
     }
 
     ArrayList<String> getTokens() {

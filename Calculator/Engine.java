@@ -14,7 +14,8 @@ import java.util.Scanner;
 // Done add parentheses checker
 // Done Verify the user input.
 // Done Refactor Evaluator class and parser class.
-// TODO add method comments.
+// TODO Improve unary support.
+// TODO add method documentation.
 
 
 class Engine {
@@ -37,7 +38,7 @@ class Engine {
 
             Message message = checker.check(expression);
             int status = message.getStatus();
-            String text = message.getText();
+            String text = message.getMessage();
             ArrayList<String> tokens = message.getTokens();
             // System.out.println("tokens: " + tokens.toString());
 

@@ -13,8 +13,11 @@ class Verifier {
      * @param tokens contains valid numbers and symbols.
      * @return a boolean value returned by isComputable.
      */
-    static boolean verify(ArrayList<String> tokens) {
-        return isComputable(tokens, new int[] {0});
+    static void verify(ArrayList<String> tokens) throws ExpressionFormatException {
+        boolean isValid =  isComputable(tokens, new int[] {0});
+        if (!isValid) {
+            throw new ExpressionFormatException("");
+        }
     }
 
     /**
@@ -35,22 +38,18 @@ class Verifier {
                 if (Evaluator.isNumber(token)) {
                     localExpression.addNumber();
                 } else if (validOperators.contains(token)) {
-                    localExpression.addOperator(token);
+                    localExpression.addOperator();
                 } else if (token.equals("(")) {
                     if (localExpression.hasStateChanged()) {
-                        // recurse if the state of the current expression has changed
                         subState = isComputable(tokens, offset);
                         if (!subState) {
                             return false;
-                        } else {
-                            localExpression.addNumber();
                         }
+                        localExpression.addNumber();
                     } else {
-                        // if state is unchanged increase open parenthesis count
                         localExpression.modParCount(1);
                     }
                 } else if (token.equals(")")) {
-                    // increase open parenthesis count
                     localExpression.modParCount(-1);
                     return localExpression.getState();
                 }

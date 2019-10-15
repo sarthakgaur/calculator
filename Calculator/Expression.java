@@ -24,7 +24,7 @@ class Expression {
         stateChanged = true;
     }
 
-    void addOperator(String aOperator) throws ExpressionFormatException {
+    void addOperator() throws ExpressionFormatException {
         if (numberPresent && !operatorPresent) {
             operatorPresent = true;
         } else {

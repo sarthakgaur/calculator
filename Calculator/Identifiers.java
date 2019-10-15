@@ -29,20 +29,22 @@ public class Identifiers {
      * @throws IdentifierException If the identifier doesn't match the identifier regex or
      * the value is not a number.
      */
-    void create(String expression) throws IdentifierException {
+    void create(String expression) throws IdentifierException, InvalidNumberException {
         String[] identifiersList = expression.split(",");
         String IdentifierRegex = "(?:^[a-zA-Z][$\\w]*)|(?:^\\$[\\w]+)";
 
         for (String token: identifiersList) {
             String[] tokenSplit = token.split("=");
-            String name = tokenSplit[0].trim();
+            String key = tokenSplit[0].trim();
             String value = tokenSplit[1].trim();
 
-            if (!(name.matches(IdentifierRegex) && Evaluator.isNumber(value))) {
-                throw new IdentifierException();
+            if (!key.matches(IdentifierRegex)) {
+                throw new IdentifierException(key);
+            } else if (!Evaluator.isNumber(value)) {
+                throw new InvalidNumberException(value);
             }
 
-            identifiers.put(name, value);
+            identifiers.put(key, value);
         }
     }
 
@@ -59,26 +61,25 @@ public class Identifiers {
         StringBuilder localExpression = new StringBuilder();
 
         while (IdentifierMatcher.find()) {
-            String preRep = "";
-            String repString = identifiers.get(IdentifierMatcher.group());
+            String key = IdentifierMatcher.group();
+            String value = identifiers.get(key);
             int matchIndex = IdentifierMatcher.start();
 
-            if (repString != null) {
+            if (value != null) {
+                String prefix = "";
                 if (matchIndex > 0) {
                     char preChar = expression.charAt(matchIndex - 1);
                     if (Character.isDigit(preChar)) {
-                        preRep = "*";
+                        prefix = "*";
                     }
                 }
-                IdentifierMatcher.appendReplacement(localExpression, preRep + repString);
+                IdentifierMatcher.appendReplacement(localExpression, prefix + value);
             } else {
-                throw new IdentifierException();
+                throw new IdentifierException(key);
             }
         }
         IdentifierMatcher.appendTail(localExpression);
 
-        expression = localExpression.toString();
-        expression = expression.replaceAll("(\\d)(\\()", "$1*$2");
-        return expression;
+        return localExpression.toString();
     }
 }
