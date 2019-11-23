@@ -4,13 +4,17 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Identifiers {
+/**
+ * All the identifiers used in the expression are stored by an object of this class.
+ * This class also provides methods like add(), clear(), create() to modify the identifiers
+ * in the session.
+ */
+class Identifiers {
 
     private HashMap<String, String> identifiers = new HashMap<>();
 
     /**
      * Store identifiers in the hash map.
-     *
      * @param key Identifier that can be used to fetch the value.
      * @param value Value associated with the key.
      */
@@ -18,6 +22,9 @@ public class Identifiers {
         identifiers.put(key, value);
     }
 
+    /**
+     * Creates a new hash map for identifiers.
+     */
     void clear() {
         identifiers = new HashMap<String, String>();
     }
@@ -25,7 +32,6 @@ public class Identifiers {
     /**
      * If the expression string contains "=", this method stores the identifier and the
      * associated value in the hash map.
-     *
      * @throws IdentifierException If the identifier doesn't match the identifier regex or
      * the value is not a number.
      */
@@ -51,7 +57,6 @@ public class Identifiers {
     /**
      * Replaces identifiers with the values in the expression. The method also handles
      * implicit multiplication.
-     *
      * @throws IdentifierException If the the hash map look up fails.
      */
     String replace(String expression) throws IdentifierException {

@@ -1,8 +1,7 @@
 package Calculator;
 
 
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Helps in checking the expression provided to it.
@@ -17,13 +16,13 @@ class Checker {
     }
 
     /**
-     * Checks the received expression and sends Message to the caller accordingly.
-     * The following list explains all the status codes.
+     * Checks the received expression and sends a Message to the caller accordingly.
+     * The following list explains all the status codes:
+     *
      * 1. 1 -> close the program
      * 2. 2 -> delete all identifiers
      * 3. 3 -> successful creation of identifiers
-     * 4. 4 -> identifier creation failed
-     *
+     * 4. 4 -> expression verification failed
      *
      * @param expression A string containing a mathematical expression or identifier
      *                       expression.
@@ -44,7 +43,7 @@ class Checker {
                 expression = identifiers.replace(expression);
                 expression = handleImpMul(expression);
                 expression = handleUnary(expression);
-                ArrayList<String> tokens = generateTokens(expression);
+                List<String> tokens = generateTokens(expression);
                 Verifier.verify(tokens);
                 return new Message(0, tokens);
             }
@@ -55,6 +54,9 @@ class Checker {
 
     /**
      * Handles the unary minus operator.
+     *
+     * @param expression a mathematical expression
+     * @return a String where unary minus is replaced with '~'
      */
     private static String handleUnary(String expression) {
         expression = expression.replaceAll("-", "~");
@@ -62,12 +64,26 @@ class Checker {
         return expression;
     }
 
+    /**
+     * Handles implicit multiplication.
+     *
+     * @param expression a mathematical expression
+     * @return a String where multiplication sign is inserted at the right place
+     */
     private static String handleImpMul(String expression) {
         expression = expression.replaceAll("(\\d)(\\()", "$1*$2");
         return expression;
     }
 
-    private static ArrayList<String> generateTokens(String expression)
+    /**
+     * Makes a list of tokens which contains valid numbers and symbols.
+     *
+     * @param expression a mathematical expression
+     * @return a List which contains valid tokens
+     * @throws InvalidNumberException if the expression contains an invalid number
+     * @throws InvalidSymbolException if the expression contains an invalid symbol
+     */
+    private static List<String> generateTokens(String expression)
             throws InvalidNumberException, InvalidSymbolException {
         var tokens = new ArrayList<String>();
         var digits = new StringBuilder();

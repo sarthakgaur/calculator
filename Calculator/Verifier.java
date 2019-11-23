@@ -2,18 +2,20 @@ package Calculator;
 
 import java.util.*;
 
-
+/**
+ * Verifies the expression given to it. The isComputable method carries out the actual
+ * verification by using the expression class.
+ */
 class Verifier {
 
     private static Set<String> validOperators = Set.of("+", "-", "*", "/", "^");
 
     /**
      * Passes tokens and the starting offset to isComputable to verify the expression
-     *
      * @param tokens contains valid numbers and symbols.
      * @return a boolean value returned by isComputable.
      */
-    static void verify(ArrayList<String> tokens) throws ExpressionFormatException {
+    static void verify(List<String> tokens) throws ExpressionFormatException {
         boolean isValid =  isComputable(tokens, new int[] {0});
         if (!isValid) {
             throw new ExpressionFormatException("");
@@ -22,12 +24,11 @@ class Verifier {
 
     /**
      * Verifies the state of expression and its nested expressions recursively.
-     *
      * @param tokens a list containing valid numbers and symbols.
      * @param offset keeps track of the current position in the list.
      * @return a boolean value denoting whether the expression is valid.
      */
-    private static boolean isComputable(ArrayList<String> tokens, int[] offset) {
+    private static boolean isComputable(List<String> tokens, int[] offset) {
         var localExpression = new Expression();
         var subState = true;
 

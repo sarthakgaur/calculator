@@ -1,12 +1,17 @@
 package Calculator;
 
-import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Used by the Checker class to send messages to the Engine class. The message class
+ * stores status, message, and tokens. Every message needs a status, message and tokens are
+ * optional.
+ */
 class Message {
 
     private int status;
     private String message;
-    private ArrayList<String> tokens;
+    private List<String> tokens;
 
     Message(int s) {
         status = s;
@@ -17,7 +22,7 @@ class Message {
         message = m;
     }
 
-    Message(int s, ArrayList<String> t) {
+    Message(int s, List<String> t) {
         status = s;
         tokens = t;
     }
@@ -30,7 +35,7 @@ class Message {
         return message;
     }
 
-    ArrayList<String> getTokens() {
+    List<String> getTokens() {
         return tokens;
     }
 }

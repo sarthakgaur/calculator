@@ -3,19 +3,31 @@ package Calculator;
 import java.math.BigDecimal;
 import java.util.*;
 
-
+/**
+ * Converts the list of token to post-fix form and then evaluates it.
+ */
 class Evaluator {
 
     private static final Set<String> validOperators = Set.of("+", "-", "*", "/", "^", "!");
 
-    static String calculate(ArrayList<String> tokens) {
-        ArrayList<String> postFixList = getPostFix(tokens);
+    /**
+     * Passes the tokens to getPostFix and then to evaluate.
+     * @param tokens list of verified symbols and numbers
+     * @return the result of the expression
+     */
+    static String calculate(List<String> tokens) {
+        List<String> postFixList = getPostFix(tokens);
         return evaluate(postFixList);
     }
 
-    private static ArrayList<String> getPostFix(ArrayList<String> tokens) {
-        HashMap<String, Integer> prec = new HashMap<>();
-        ArrayList<String> postFixList = new ArrayList<>();
+    /**
+     * Converts the list of tokens into the postfix form.
+     * @param tokens verified tokens
+     * @return list of post-fix tokens
+     */
+    private static List<String> getPostFix(List<String> tokens) {
+        Map<String, Integer> prec = new HashMap<>();
+        List<String> postFixList = new ArrayList<>();
         Stack<String> opStack = new Stack<>();
 
         prec.put("(", 0);
@@ -56,7 +68,12 @@ class Evaluator {
         return postFixList;
     }
 
-    private static String evaluate(ArrayList<String> postFixTokens) {
+    /**
+     * Evaluates the postfix tokens.
+     * @param postFixTokens list of tokens in the post-fix form
+     * @return the result after evaluating the tokens
+     */
+    private static String evaluate(List<String> postFixTokens) {
         Stack<String> evalStack = new Stack<>();
 
         for (String token : postFixTokens) {
@@ -80,6 +97,13 @@ class Evaluator {
         return resultCleaner(result);
     }
 
+    /**
+     * Performs the operation on the given numbers.
+     * @param x first number
+     * @param operator the operator
+     * @param y second number
+     * @return result of the expression
+     */
     private static String calculate(String x, String operator, String y) {
         Double a = Double.valueOf(x);
         Double b = Double.valueOf(y);;
@@ -108,6 +132,11 @@ class Evaluator {
         return a.toString();
     }
 
+    /**
+     * Calculates the factorial of a number.
+     * @param n a number
+     * @return a double result
+     */
     private static double factorial(double n) {
         double fact = 1;
         while (n > 1) {
@@ -117,11 +146,21 @@ class Evaluator {
         return fact;
     }
 
+    /**
+     * Strips out all the trailing zeros from the result.
+     * @param result the result of the expression
+     * @return a String result
+     */
     private static String resultCleaner(String result) {
         BigDecimal bigResult = new BigDecimal(result);
         return bigResult.stripTrailingZeros().toPlainString();
     }
 
+    /**
+     * Checks if the String is a number.
+     * @param num a String which might contain a number
+     * @return true if the String is a number, false otherwise
+     */
     static boolean isNumber(String num) {
         try {
             Double.valueOf(num);

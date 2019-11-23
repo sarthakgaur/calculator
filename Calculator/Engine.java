@@ -1,8 +1,6 @@
 package Calculator;
 
-import java.util.ArrayList;
-import java.util.Scanner;
-
+import java.util.*;
 
 // Done add identifiers support
 // Done bind the result to 'r'
@@ -14,10 +12,15 @@ import java.util.Scanner;
 // Done add parentheses checker
 // Done Verify the user input.
 // Done Refactor Evaluator class and parser class.
+// Done add documentation.
+// TODO add logging support
 // TODO Improve unary support.
-// TODO add method documentation.
 
-
+/**
+ * This class contains the main method. Engine is responsible for taking input from the user,
+ * calls the Checker for checking the expression and then the evaluator for evaluating the
+ * expression. Prompts are provided for helping the user.
+ */
 class Engine {
 
     private Identifiers identifiers = new Identifiers();
@@ -25,6 +28,10 @@ class Engine {
     private int resultCount = 0;
     private String expression;
 
+    /**
+     * Takes input from the user and sends it for verification. Prints helpful prompts to help
+     * the user.
+     */
     private void start() {
         Scanner sc = new Scanner(System.in);
 
@@ -39,7 +46,7 @@ class Engine {
             Message message = checker.check(expression);
             int status = message.getStatus();
             String text = message.getMessage();
-            ArrayList<String> tokens = message.getTokens();
+            List<String> tokens = message.getTokens();
             // System.out.println("tokens: " + tokens.toString());
 
             switch (status) {
@@ -66,7 +73,11 @@ class Engine {
         }
     }
 
-    private void resultHandler(ArrayList<String> tokens) {
+    /**
+     * Outputs the result with the correct identifier.
+     * @param tokens verified tokens
+     */
+    private void resultHandler(List<String> tokens) {
         String result = Evaluator.calculate(tokens);
         resultCount++;
         String resultPrompt = "$" + resultCount;
@@ -74,9 +85,14 @@ class Engine {
         System.out.println(resultPrompt + " -> " + result);
     }
 
-    String run(String expression) {
+    /**
+     * This method is used for testing.
+     * @param expression a mathematical expression.
+     * @return the result.
+     */
+    String test(String expression) {
         Message message = checker.check(expression);
-        ArrayList<String> tokens = message.getTokens();
+        List<String> tokens = message.getTokens();
         if (tokens == null) {
             return "NA";
         }
