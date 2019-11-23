@@ -1,8 +1,8 @@
 package Calculator;
 
-import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+import java.util.logging.*;
+import java.util.regex.*;
 
 /**
  * All the identifiers used in the expression are stored by an object of this class.
@@ -85,6 +85,8 @@ class Identifiers {
         }
         IdentifierMatcher.appendTail(localExpression);
 
-        return localExpression.toString();
+        String newExpression = localExpression.toString();
+        Logger.getLogger("calcLogger").log(Level.FINE, "IdentifiersInsert -> " + newExpression);
+        return newExpression;
     }
 }

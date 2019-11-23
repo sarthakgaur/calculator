@@ -1,7 +1,7 @@
 package Calculator;
 
-
 import java.util.*;
+import java.util.logging.*;
 
 /**
  * Helps in checking the expression provided to it.
@@ -122,6 +122,7 @@ class Checker {
             }
         }
 
+        Logger.getLogger("calcLogger").log(Level.FINE, "tokens -> " + tokens);
         return tokens;
     }
 }

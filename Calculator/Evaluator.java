@@ -2,6 +2,7 @@ package Calculator;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.logging.*;
 
 /**
  * Converts the list of token to post-fix form and then evaluates it.
@@ -64,7 +65,7 @@ class Evaluator {
             postFixList.add(topOfStack);
         }
 
-        // System.out.println("postFix: " + postFixList.toString());
+        Logger.getLogger("calcLogger").log(Level.FINE, "postfixList -> " + postFixList.toString());
         return postFixList;
     }
 
@@ -94,6 +95,7 @@ class Evaluator {
         }
 
         String result = evalStack.pop();
+        Logger.getLogger("calcLogger").log(Level.FINE, "result -> " + result);
         return resultCleaner(result);
     }
 

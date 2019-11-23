@@ -1,6 +1,8 @@
 package Calculator;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.logging.*;
 
 // Done add identifiers support
 // Done bind the result to 'r'
@@ -13,7 +15,7 @@ import java.util.*;
 // Done Verify the user input.
 // Done Refactor Evaluator class and parser class.
 // Done add documentation.
-// TODO add logging support
+// Done add logging support
 // TODO Improve unary support.
 
 /**
@@ -23,6 +25,7 @@ import java.util.*;
  */
 class Engine {
 
+    private static final Logger calcLogger = Logger.getLogger("calcLogger");
     private Identifiers identifiers = new Identifiers();
     private Checker checker = new Checker(identifiers);
     private int resultCount = 0;
@@ -33,6 +36,7 @@ class Engine {
      * the user.
      */
     private void start() {
+        setupLogger();
         Scanner sc = new Scanner(System.in);
 
         final String CURRENT_SESSION = "c: ";
@@ -43,11 +47,12 @@ class Engine {
             System.out.print(prompt);
             expression = sc.nextLine();
 
+            calcLogger.log(Level.FINE, "expression -> " + expression);
+
             Message message = checker.check(expression);
             int status = message.getStatus();
             String text = message.getMessage();
             List<String> tokens = message.getTokens();
-            // System.out.println("tokens: " + tokens.toString());
 
             switch (status) {
                 case 0:
@@ -85,6 +90,17 @@ class Engine {
         System.out.println(resultPrompt + " -> " + result);
     }
 
+    private void setupLogger() {
+        try {
+            calcLogger.setLevel(Level.ALL);
+            calcLogger.setUseParentHandlers(false);
+            var handler = new FileHandler("%h/.calcLogger");
+            handler.setLevel(Level.ALL);
+            handler.setFormatter(new SimpleFormatter());
+            calcLogger.addHandler(handler);
+        } catch (IOException ignored) {}
+    }
+
     /**
      * This method is used for testing.
      * @param expression a mathematical expression.
@@ -100,7 +116,6 @@ class Engine {
     }
 
     public static void main(String[] args) {
-        Engine engine = new Engine();
-        engine.start();
+        new Engine().start();
     }
 }
