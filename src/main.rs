@@ -1,22 +1,50 @@
 use std::collections::HashMap;
-use std::collections::HashSet;
 use std::io::{self, Write};
 
 // TODO Get the expresssion from stdin. Done.
 // TODO Parse the expression. Done.
 // TODO Get the post fix expression. Done.
 // TODO Evaluate the expression. Done.
+// TODO Add parantheses. Done.
+// TODO Refactor the code. Done.
+
+#[derive(PartialEq, Debug)]
+enum Token {
+    Number(f64),
+    Operator(Operator),
+}
+
+#[derive(Clone, PartialEq, Debug)]
+struct Operator {
+    name: OperatorName,
+    precedence: usize,
+}
+
+#[derive(Clone, PartialEq, Debug)]
+enum OperatorName {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Parentheses(Parentheses),
+}
+
+#[derive(Clone, PartialEq, Debug)]
+enum Parentheses {
+    Open,
+    Close,
+}
 
 fn main() {
     loop {
         let expr = get_expr();
-        let tokens = parse_expr(&expr);
-        let postfix_tokens = get_postfix(&tokens);
-        let res = eval_postfix(&postfix_tokens);
-
         println!("You entered the expression, {:?}", expr);
+        let tokens = parse_expr(&expr);
         println!("tokens, {:?}", tokens);
+        let postfix_tokens = get_postfix(tokens);
         println!("postfix tokens, {:?}", postfix_tokens);
+        let res = eval_postfix(postfix_tokens);
+
         println!("res, {:?}", res);
     }
 }
@@ -31,24 +59,20 @@ fn get_expr() -> String {
     input.trim().to_string()
 }
 
-fn parse_expr(expr: &String) -> Vec<String> {
-    let mut tokens: Vec<String> = Vec::new();
+fn parse_expr(expr: &String) -> Vec<Token> {
+    let mut tokens: Vec<Token> = Vec::new();
     let mut num_buffer: Vec<char> = Vec::new();
-    let mut op_set: HashSet<char> = HashSet::new();
-
-    op_set.insert('+');
-    op_set.insert('-');
-    op_set.insert('*');
-    op_set.insert('/');
+    let op_map = get_op_map();
 
     for c in expr.chars() {
         if c.is_digit(10) {
             num_buffer.push(c);
         } else if c == '.' {
             num_buffer.push(c);
-        } else if op_set.contains(&c) {
-            push_num(&mut num_buffer, &mut tokens);
-            tokens.push(c.to_string());
+        } else if op_map.contains_key(&c) {
+            push_num(&mut tokens, &mut num_buffer);
+            let op = op_map.get(&c).unwrap().clone();
+            tokens.push(Token::Operator(op));
         } else {
             if c == ' ' {
                 continue;
@@ -58,95 +82,162 @@ fn parse_expr(expr: &String) -> Vec<String> {
         }
     }
 
-    push_num(&mut num_buffer, &mut tokens);
+    push_num(&mut tokens, &mut num_buffer);
 
     tokens
 }
 
-fn push_num(num_buffer: &mut Vec<char>, tokens: &mut Vec<String>) {
+fn get_op_map() -> HashMap<char, Operator> {
+    let mut op_map: HashMap<char, Operator> = HashMap::new();
+    op_map.insert(
+        '+',
+        Operator {
+            name: OperatorName::Add,
+            precedence: 1,
+        },
+    );
+    op_map.insert(
+        '-',
+        Operator {
+            name: OperatorName::Subtract,
+            precedence: 1,
+        },
+    );
+    op_map.insert(
+        '*',
+        Operator {
+            name: OperatorName::Multiply,
+            precedence: 2,
+        },
+    );
+    op_map.insert(
+        '/',
+        Operator {
+            name: OperatorName::Divide,
+            precedence: 2,
+        },
+    );
+    op_map.insert(
+        '(',
+        Operator {
+            name: OperatorName::Parentheses(Parentheses::Open),
+            precedence: 0,
+        },
+    );
+    op_map.insert(
+        ')',
+        Operator {
+            name: OperatorName::Parentheses(Parentheses::Close),
+            precedence: 0,
+        },
+    );
+
+    op_map
+}
+
+fn push_num(tokens: &mut Vec<Token>, num_buffer: &mut Vec<char>) {
     if num_buffer.len() > 0 {
         let num_str: String = num_buffer.iter().collect();
         let num: f64 = num_str
             .parse()
             .expect("Error occurred while parsing a number.");
-        tokens.push(num.to_string());
+        tokens.push(Token::Number(num));
         num_buffer.clear();
     }
 }
 
-fn get_postfix(tokens: &Vec<String>) -> Vec<String> {
-    let mut output_stack: Vec<String> = Vec::new();
-    let mut operator_stack: Vec<String> = Vec::new();
-    let mut op_set: HashMap<&str, usize> = HashMap::new();
-
-    op_set.insert("+", 1);
-    op_set.insert("-", 1);
-    op_set.insert("*", 2);
-    op_set.insert("/", 3);
+fn get_postfix(tokens: Vec<Token>) -> Vec<Token> {
+    let mut output_stack: Vec<Token> = Vec::new();
+    let mut operator_stack: Vec<Operator> = Vec::new();
 
     for token in tokens {
-        if token.parse::<f64>().is_ok() {
-            output_stack.push(token.to_string());
-        } else if op_set.contains_key(token.as_str()) {
-            if operator_stack.is_empty() {
-                operator_stack.push(token.to_string());
-            } else {
-                let mut last = operator_stack.last();
-                let current_prec = op_set.get(token.as_str());
-
-                while last.is_some() && op_set.get(last.unwrap().as_str()) >= current_prec {
-                    let operator = operator_stack.pop().unwrap();
-                    output_stack.push(operator);
-                    last = operator_stack.last();
-                }
-
-                operator_stack.push(token.to_string());
-            }
-        } else {
-            panic!("Unexpected token found.");
+        match token {
+            Token::Number(_) => output_stack.push(token),
+            Token::Operator(operator) => match &operator.name {
+                OperatorName::Parentheses(paren) => match paren {
+                    Parentheses::Open => operator_stack.push(operator),
+                    Parentheses::Close => {
+                        handle_close_paren(&mut operator_stack, &mut output_stack)
+                    }
+                },
+                _ => handle_rest_ops(&mut operator_stack, &mut output_stack, operator),
+            },
         }
     }
 
     while !operator_stack.is_empty() {
         let operator = operator_stack.pop().unwrap();
-        output_stack.push(operator.to_string());
+        output_stack.push(Token::Operator(operator));
     }
 
     output_stack
 }
 
-fn eval_postfix(tokens: &Vec<String>) -> String {
-    let mut eval_stack: Vec<String> = Vec::new();
-    let mut op_set: HashSet<String> = HashSet::new();
+fn handle_close_paren(operator_stack: &mut Vec<Operator>, output_stack: &mut Vec<Token>) {
+    let mut last = operator_stack.pop().unwrap();
+    let is_open = last.name == OperatorName::Parentheses(Parentheses::Open);
+    while !operator_stack.is_empty() && !is_open {
+        output_stack.push(Token::Operator(last));
+        last = operator_stack.pop().unwrap();
+    }
+}
 
-    op_set.insert("+".to_string());
-    op_set.insert("-".to_string());
-    op_set.insert("*".to_string());
-    op_set.insert("/".to_string());
+fn handle_rest_ops(
+    operator_stack: &mut Vec<Operator>,
+    output_stack: &mut Vec<Token>,
+    operator: Operator,
+) {
+    let mut last = operator_stack.last();
+    let current_prec = operator.precedence;
+
+    while last.is_some() && last.unwrap().precedence >= current_prec {
+        let last_op = operator_stack.pop().unwrap();
+        output_stack.push(Token::Operator(last_op));
+        last = operator_stack.last();
+    }
+
+    operator_stack.push(operator);
+}
+
+fn eval_postfix(tokens: Vec<Token>) -> f64 {
+    let mut eval_stack: Vec<Token> = Vec::new();
 
     for token in tokens {
-        if token.parse::<f64>().is_ok() {
-            eval_stack.push(token.to_string());
-        } else if op_set.contains(token) {
-            let n2 = eval_stack.pop().unwrap();
-            let n1 = eval_stack.pop().unwrap();
-            let res = calc(&n1, &n2, token);
-            eval_stack.push(res.to_string());
+        match token {
+            Token::Number(_) => eval_stack.push(token),
+            Token::Operator(operator) => {
+                let n2 = eval_stack.pop().unwrap();
+                let n1 = eval_stack.pop().unwrap();
+                let res = calc(&n1, &n2, &operator);
+                eval_stack.push(res);
+            }
         }
     }
 
-    eval_stack.pop().unwrap()
+    match eval_stack.pop().unwrap() {
+        Token::Number(n) => n,
+        _ => panic!("Error occurred while evaluating."),
+    }
 }
 
-fn calc(n1: &String, n2: &String, operator: &String) -> f64 {
-    let n1 = n1.parse::<f64>().unwrap();
-    let n2 = n2.parse::<f64>().unwrap();
+fn calc(t1: &Token, t2: &Token, operator: &Operator) -> Token {
+    let n1 = match t1 {
+        Token::Number(n) => n,
+        _ => panic!("Error occurred while calculating."),
+    };
 
-    match operator.as_str() {
-        "+" => n1 + n2,
-        "-" => n1 - n2,
-        "*" => n1 * n2,
-        "/" => n1 / n2,
+    let n2 = match t2 {
+        Token::Number(n) => n,
+        _ => panic!("Error occurred while calculating."),
+    };
+
+    let res = match operator.name {
+        OperatorName::Add => n1 + n2,
+        OperatorName::Subtract => n1 - n2,
+        OperatorName::Multiply => n1 * n2,
+        OperatorName::Divide => n1 / n2,
         _ => panic!("Invalid operator."),
-    }
+    };
+
+    Token::Number(res)
 }
