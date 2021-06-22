@@ -13,11 +13,11 @@ pub fn get_expr() -> String {
 }
 
 pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
-    let cloned_tokens = tokens.to_owned();
+    let local_tokens = tokens.to_owned();
     let mut output_stack: Vec<Token> = Vec::new();
     let mut operator_stack: Vec<Operator> = Vec::new();
 
-    for token in cloned_tokens {
+    for token in local_tokens {
         match token {
             Token::Number(_) => output_stack.push(token),
             Token::Operator(operator) => match &operator.name {

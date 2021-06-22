@@ -5,16 +5,16 @@ use crate::token::{Operator, OperatorName, Token};
 pub fn parse_expr(expr: &str) -> Vec<Token> {
     let mut tokens: Vec<Token> = Vec::new();
     let mut num_buffer: Vec<char> = Vec::new();
-    let op_map = get_op_map();
+    let oper_map = get_oper_map();
 
-    for c in expr.chars() {
-        if c.is_digit(10) || c == '.' {
-            num_buffer.push(c);
-        } else if op_map.contains_key(&c) {
+    for ch in expr.chars() {
+        if ch.is_digit(10) || ch == '.' {
+            num_buffer.push(ch);
+        } else if oper_map.contains_key(&ch) {
             push_num(&mut tokens, &mut num_buffer);
-            let op = op_map.get(&c).unwrap().clone();
+            let op = oper_map.get(&ch).unwrap().clone();
             tokens.push(Token::Operator(op));
-        } else if c == ' ' {
+        } else if ch == ' ' {
             continue;
         } else {
             panic!("Unexpected token found.");
@@ -26,7 +26,7 @@ pub fn parse_expr(expr: &str) -> Vec<Token> {
     tokens
 }
 
-fn get_op_map() -> HashMap<char, Operator> {
+fn get_oper_map() -> HashMap<char, Operator> {
     let mut op_map: HashMap<char, Operator> = HashMap::new();
     op_map.insert(
         '+',

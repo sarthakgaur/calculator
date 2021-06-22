@@ -7,27 +7,27 @@ pub fn eval_expr(tokens: &[Token]) -> f64 {
 }
 
 fn _eval_expr(tokens: &[Token], index: &mut usize, inside_paren: bool) -> f64 {
-    let mut expression = Expression::new();
+    let mut expr = Expression::new();
 
     if inside_paren {
-        expression.handle_paren(OperatorName::OpenParenthesis);
+        expr.handle_paren(OperatorName::OpenParenthesis);
     }
 
     while *index < tokens.len() {
         match &tokens[*index] {
-            Token::Number(n) => expression.add_num(n.to_owned()),
-            Token::Operator(operator) => match operator.name {
+            Token::Number(n) => expr.add_num(n.to_owned()),
+            Token::Operator(oper) => match oper.name {
                 OperatorName::OpenParenthesis => {
                     *index += 1;
                     let num = _eval_expr(tokens, index, true);
-                    expression.add_num(num);
+                    expr.add_num(num);
                 }
                 OperatorName::CloseParenthesis => {
-                    expression.handle_paren(OperatorName::CloseParenthesis);
-                    return expression.evaluate();
+                    expr.handle_paren(OperatorName::CloseParenthesis);
+                    return expr.eval();
                 }
                 _ => {
-                    expression.add_operator(operator.clone());
+                    expr.add_operator(oper.clone());
                 }
             },
         }
@@ -35,7 +35,7 @@ fn _eval_expr(tokens: &[Token], index: &mut usize, inside_paren: bool) -> f64 {
         *index += 1;
     }
 
-    expression.evaluate()
+    expr.eval()
 }
 
 pub fn eval_postfix(tokens: Vec<Token>) -> f64 {
@@ -44,10 +44,10 @@ pub fn eval_postfix(tokens: Vec<Token>) -> f64 {
     for token in tokens {
         match token {
             Token::Number(_) => eval_stack.push(token),
-            Token::Operator(operator) => {
+            Token::Operator(oper) => {
                 let n2 = eval_stack.pop().unwrap();
                 let n1 = eval_stack.pop().unwrap();
-                let res = calc(&n1, &n2, &operator);
+                let res = calc(&n1, &n2, &oper);
                 eval_stack.push(res);
             }
         }
@@ -59,7 +59,7 @@ pub fn eval_postfix(tokens: Vec<Token>) -> f64 {
     }
 }
 
-fn calc(t1: &Token, t2: &Token, operator: &Operator) -> Token {
+fn calc(t1: &Token, t2: &Token, oper: &Operator) -> Token {
     let n1 = match t1 {
         Token::Number(n) => n,
         _ => panic!("Error occurred while calculating."),
@@ -70,7 +70,7 @@ fn calc(t1: &Token, t2: &Token, operator: &Operator) -> Token {
         _ => panic!("Error occurred while calculating."),
     };
 
-    let res = match operator.name {
+    let res = match oper.name {
         OperatorName::Add => n1 + n2,
         OperatorName::Subtract => n1 - n2,
         OperatorName::Multiply => n1 * n2,

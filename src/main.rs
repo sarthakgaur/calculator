@@ -12,7 +12,7 @@ mod utils;
 // TODO Refactor the code. Done.
 // TODO Handle unary operators. Done.
 // TODO Split code into different files. Done.
-// TODO Fix clippy warnings.
+// TODO Fix clippy warnings. Done.
 
 fn main() {
     loop {
