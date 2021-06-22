@@ -1,12 +1,12 @@
 use crate::expr::Expression;
 use crate::token::{Operator, OperatorName, Token};
 
-pub fn eval_expr(tokens: &Vec<Token>) -> f64 {
+pub fn eval_expr(tokens: &[Token]) -> f64 {
     let mut index = 0;
-    return _eval_expr(tokens, &mut index, false);
+    _eval_expr(tokens, &mut index, false)
 }
 
-fn _eval_expr(tokens: &Vec<Token>, index: &mut usize, inside_paren: bool) -> f64 {
+fn _eval_expr(tokens: &[Token], index: &mut usize, inside_paren: bool) -> f64 {
     let mut expression = Expression::new();
 
     if inside_paren {

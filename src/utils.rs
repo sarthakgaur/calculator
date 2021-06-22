@@ -12,8 +12,8 @@ pub fn get_expr() -> String {
     input.trim().to_string()
 }
 
-pub fn get_postfix(tokens: &Vec<Token>) -> Vec<Token> {
-    let cloned_tokens = tokens.clone();
+pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
+    let cloned_tokens = tokens.to_owned();
     let mut output_stack: Vec<Token> = Vec::new();
     let mut operator_stack: Vec<Operator> = Vec::new();
 

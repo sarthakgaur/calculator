@@ -2,26 +2,22 @@ use std::collections::HashMap;
 
 use crate::token::{Operator, OperatorName, Token};
 
-pub fn parse_expr(expr: &String) -> Vec<Token> {
+pub fn parse_expr(expr: &str) -> Vec<Token> {
     let mut tokens: Vec<Token> = Vec::new();
     let mut num_buffer: Vec<char> = Vec::new();
     let op_map = get_op_map();
 
     for c in expr.chars() {
-        if c.is_digit(10) {
-            num_buffer.push(c);
-        } else if c == '.' {
+        if c.is_digit(10) || c == '.' {
             num_buffer.push(c);
         } else if op_map.contains_key(&c) {
             push_num(&mut tokens, &mut num_buffer);
             let op = op_map.get(&c).unwrap().clone();
             tokens.push(Token::Operator(op));
+        } else if c == ' ' {
+            continue;
         } else {
-            if c == ' ' {
-                continue;
-            } else {
-                panic!("Unexpected token found.");
-            }
+            panic!("Unexpected token found.");
         }
     }
 
@@ -79,7 +75,7 @@ fn get_op_map() -> HashMap<char, Operator> {
 }
 
 fn push_num(tokens: &mut Vec<Token>, num_buffer: &mut Vec<char>) {
-    if num_buffer.len() > 0 {
+    if !num_buffer.is_empty() {
         let num_str: String = num_buffer.iter().collect();
         let num: f64 = num_str
             .parse()

@@ -73,8 +73,7 @@ impl Expression {
             panic!("Extra operators provided.")
         } else {
             let postfix_tokens = utils::get_postfix(&self.tokens);
-            let res = eval::eval_postfix(postfix_tokens);
-            return res;
+            eval::eval_postfix(postfix_tokens)
         }
     }
 }
