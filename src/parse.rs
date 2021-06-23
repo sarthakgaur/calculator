@@ -1,7 +1,9 @@
+use crate::token::{Operator, OperatorName, Token};
+use anyhow::bail;
+use fehler::throws;
 use std::collections::HashMap;
 
-use crate::token::{Operator, OperatorName, Token};
-
+#[throws(anyhow::Error)]
 pub fn parse_expr(expr: &str) -> Vec<Token> {
     let mut tokens: Vec<Token> = Vec::new();
     let mut num_buffer: Vec<char> = Vec::new();
@@ -17,7 +19,7 @@ pub fn parse_expr(expr: &str) -> Vec<Token> {
         } else if ch == ' ' {
             continue;
         } else {
-            panic!("Unexpected token found.");
+            bail!("Unexpected token found.");
         }
     }
 
