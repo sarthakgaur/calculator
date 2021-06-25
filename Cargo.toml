@@ -9,3 +9,5 @@ edition = "2018"
 [dependencies]
 anyhow = "1.0.41"
 fehler = "1.0.0"
+rustyline = "8.2.0"
+dirs = "3.0.2"

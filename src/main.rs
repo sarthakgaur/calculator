@@ -1,3 +1,7 @@
+use fehler::throws;
+use rustyline::error::ReadlineError;
+use rustyline::Editor;
+
 mod eval;
 mod expr;
 mod parse;
@@ -15,34 +19,56 @@ mod utils;
 // TODO Fix clippy warnings. Done.
 // TODO Improve error handling.
 
+#[throws(anyhow::Error)]
 fn main() {
+    let mut rl = Editor::<()>::new();
+    utils::build_local_dir()?;
+    let history_file_path = utils::get_local_calc_dir()?.join("history.txt");
+
+    let _ = rl.load_history(&history_file_path);
+
     loop {
-        let expr = match utils::get_expr() {
-            Ok(expr) => expr,
-            Err(error) => {
-                eprintln!("Error occurred: {}", error);
-                continue;
+        let readline = rl.readline("> ");
+
+        match readline {
+            Ok(expr) => {
+                rl.add_history_entry(&expr);
+
+                let tokens = match parse::parse_expr(&expr) {
+                    Ok(tokens) => tokens,
+                    Err(error) => {
+                        eprintln!("Error occurred: {}", error);
+                        continue;
+                    }
+                };
+
+                println!("tokens, {:?}", tokens);
+
+                let res = match eval::eval_expr(&tokens) {
+                    Ok(res) => res,
+                    Err(error) => {
+                        eprintln!("Error occurred: {}", error);
+                        continue;
+                    }
+                };
+
+                println!("res, {:?}", res);
             }
-        };
 
-        let tokens = match parse::parse_expr(&expr) {
-            Ok(tokens) => tokens,
-            Err(error) => {
-                eprintln!("Error occurred: {}", error);
-                continue;
+            Err(ReadlineError::Interrupted) => {
+                break;
             }
-        };
 
-        println!("tokens, {:?}", tokens);
-
-        let res = match eval::eval_expr(&tokens) {
-            Ok(res) => res,
-            Err(error) => {
-                eprintln!("Error occurred: {}", error);
-                continue;
+            Err(ReadlineError::Eof) => {
+                break;
             }
-        };
 
-        println!("res, {:?}", res);
+            Err(err) => {
+                println!("Error: {:?}", err);
+                break;
+            }
+        }
+
+        rl.save_history(&history_file_path).unwrap();
     }
 }

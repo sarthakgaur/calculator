@@ -1,7 +1,11 @@
-use crate::token::{Operator, OperatorName, Token};
+use std::fs::create_dir_all;
+use std::io::{self, Write};
+use std::path::PathBuf;
+
 use anyhow::anyhow;
 use fehler::throws;
-use std::io::{self, Write};
+
+use crate::token::{Operator, OperatorName, Token};
 
 #[throws(anyhow::Error)]
 pub fn get_expr() -> String {
@@ -64,4 +68,21 @@ pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
     }
 
     output_stack
+}
+
+#[throws(anyhow::Error)]
+pub fn get_home_dir() -> PathBuf {
+    dirs::home_dir().ok_or_else(|| anyhow!("Could not get you home directoyr."))?
+}
+
+#[throws(anyhow::Error)]
+pub fn get_local_calc_dir() -> PathBuf {
+    let home_dir = get_home_dir()?;
+    home_dir.join(".local").join("share").join("calc")
+}
+
+#[throws(anyhow::Error)]
+pub fn build_local_dir() {
+    let local_calc_dir = get_local_calc_dir()?;
+    create_dir_all(&local_calc_dir)?;
 }
