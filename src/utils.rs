@@ -1,22 +1,10 @@
 use std::fs::create_dir_all;
-use std::io::{self, Write};
 use std::path::PathBuf;
 
 use anyhow::anyhow;
 use fehler::throws;
 
 use crate::token::{Operator, OperatorName, Token};
-
-#[throws(anyhow::Error)]
-pub fn get_expr() -> String {
-    let mut stdout = io::stdout();
-    write!(&mut stdout, "> ")?;
-    stdout.flush()?;
-
-    let mut input = String::new();
-    std::io::stdin().read_line(&mut input)?;
-    input.trim().to_string()
-}
 
 #[throws(anyhow::Error)]
 pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
