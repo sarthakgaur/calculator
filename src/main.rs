@@ -17,7 +17,9 @@ mod utils;
 // TODO Handle unary operators. Done.
 // TODO Split code into different files. Done.
 // TODO Fix clippy warnings. Done.
-// TODO Improve error handling.
+// TODO Improve error handling. Done.
+// TODO Add rustyline. Done.
+// TODO Add identifiers support.
 
 #[throws(anyhow::Error)]
 fn main() {
