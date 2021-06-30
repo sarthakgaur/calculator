@@ -8,19 +8,6 @@ mod parse;
 mod token;
 mod utils;
 
-// TODO Get the expresssion from stdin. Done.
-// TODO Parse the expression. Done.
-// TODO Get the post fix expression. Done.
-// TODO Evaluate the expression. Done.
-// TODO Add parantheses. Done.
-// TODO Refactor the code. Done.
-// TODO Handle unary operators. Done.
-// TODO Split code into different files. Done.
-// TODO Fix clippy warnings. Done.
-// TODO Improve error handling. Done.
-// TODO Add rustyline. Done.
-// TODO Add identifiers support.
-
 #[throws(anyhow::Error)]
 fn main() {
     let mut rl = Editor::<()>::new();

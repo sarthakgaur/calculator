@@ -1,0 +1,12 @@
+01. Get the expresssion from stdin. Done.
+02. Parse the expression. Done.
+03. Get the post fix expression. Done.
+04. Evaluate the expression. Done.
+05. Add parantheses. Done.
+06. Refactor the code. Done.
+07. Handle unary operators. Done.
+08. Split code into different files. Done.
+09. Fix clippy warnings. Done.
+10. Improve error handling. Done.
+11. Add rustyline. Done.
+12. Add identifiers support.
