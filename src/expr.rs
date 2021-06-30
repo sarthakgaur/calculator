@@ -25,10 +25,11 @@ impl Expression {
 
     #[throws(anyhow::Error)]
     pub fn add_num(&mut self, num: f64) {
-        if !self.num_set || self.oper_set {
-            self.num_set = true;
-            let update_num = self.handle_extra_ops(num);
-            self.tokens.push(Token::Number(update_num));
+        if !self.num_set {
+            self.set_num(num);
+        } else if self.oper_set {
+            self.set_num(num);
+            self.oper_set = false;
         } else {
             bail!("Invalid expression.")
         }
@@ -81,5 +82,11 @@ impl Expression {
             let postfix_tokens = utils::get_postfix(&self.tokens)?;
             eval::eval_postfix(postfix_tokens)?
         }
+    }
+
+    fn set_num(&mut self, num: f64) {
+        self.num_set = true;
+        let update_num = self.handle_extra_ops(num);
+        self.tokens.push(Token::Number(update_num));
     }
 }

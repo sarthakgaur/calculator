@@ -17,7 +17,7 @@ pub fn parse_expr(expr: &str) -> Vec<Token> {
             let op = oper_map.get(&ch).unwrap().clone();
             tokens.push(Token::Operator(op));
         } else if ch == ' ' {
-            continue;
+            push_num(&mut tokens, &mut num_buffer);
         } else {
             bail!("Unexpected token found.");
         }
