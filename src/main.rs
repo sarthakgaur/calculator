@@ -26,7 +26,6 @@ fn main() {
     let mut rl = Editor::<()>::new();
     utils::build_local_dir()?;
     let history_file_path = utils::get_local_calc_dir()?.join("history.txt");
-
     let _ = rl.load_history(&history_file_path);
 
     loop {
@@ -44,17 +43,13 @@ fn main() {
                     }
                 };
 
-                println!("tokens, {:?}", tokens);
-
-                let res = match eval::eval_expr(&tokens) {
-                    Ok(res) => res,
+                match eval::eval_expr(&tokens) {
+                    Ok(res) => println!("{}", res),
                     Err(error) => {
                         eprintln!("Error occurred: {}", error);
                         continue;
                     }
                 };
-
-                println!("res, {:?}", res);
             }
 
             Err(ReadlineError::Interrupted) => {
@@ -71,6 +66,6 @@ fn main() {
             }
         }
 
-        rl.save_history(&history_file_path).unwrap();
+        rl.save_history(&history_file_path)?;
     }
 }
