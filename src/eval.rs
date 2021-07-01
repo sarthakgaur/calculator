@@ -11,39 +11,6 @@ pub fn eval_expr(tokens: &[Token]) -> f64 {
 }
 
 #[throws(anyhow::Error)]
-fn _eval_expr(tokens: &[Token], index: &mut usize, inside_paren: bool) -> f64 {
-    let mut expr = Expression::new();
-
-    if inside_paren {
-        expr.handle_paren(OperatorName::OpenParenthesis)?;
-    }
-
-    while *index < tokens.len() {
-        match &tokens[*index] {
-            Token::Number(n) => expr.add_num(n.to_owned())?,
-            Token::Operator(oper) => match oper.name {
-                OperatorName::OpenParenthesis => {
-                    *index += 1;
-                    let num = _eval_expr(tokens, index, true)?;
-                    expr.add_num(num)?;
-                }
-                OperatorName::CloseParenthesis => {
-                    expr.handle_paren(OperatorName::CloseParenthesis)?;
-                    return expr.eval()?;
-                }
-                _ => {
-                    expr.add_operator(oper.clone())?;
-                }
-            },
-        }
-
-        *index += 1;
-    }
-
-    expr.eval()?
-}
-
-#[throws(anyhow::Error)]
 pub fn eval_postfix(tokens: Vec<Token>) -> f64 {
     let mut eval_stack: Vec<Token> = Vec::new();
 
@@ -70,6 +37,39 @@ pub fn eval_postfix(tokens: Vec<Token>) -> f64 {
         Token::Number(n) => n,
         _ => bail!("Error occurred while evaluating."),
     }
+}
+
+#[throws(anyhow::Error)]
+fn _eval_expr(tokens: &[Token], index: &mut usize, inside_paren: bool) -> f64 {
+    let mut expr = Expression::new();
+
+    if inside_paren {
+        expr.add_paren(OperatorName::OpenParenthesis)?;
+    }
+
+    while *index < tokens.len() {
+        match &tokens[*index] {
+            Token::Number(n) => expr.add_num(n.to_owned())?,
+            Token::Operator(oper) => match oper.name {
+                OperatorName::OpenParenthesis => {
+                    *index += 1;
+                    let num = _eval_expr(tokens, index, true)?;
+                    expr.add_num(num)?;
+                }
+                OperatorName::CloseParenthesis => {
+                    expr.add_paren(OperatorName::CloseParenthesis)?;
+                    return expr.eval()?;
+                }
+                _ => {
+                    expr.add_oper(oper.clone())?;
+                }
+            },
+        }
+
+        *index += 1;
+    }
+
+    expr.eval()?
 }
 
 #[throws(anyhow::Error)]

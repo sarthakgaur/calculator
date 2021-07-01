@@ -11,7 +11,7 @@ mod utils;
 #[throws(anyhow::Error)]
 fn main() {
     let mut rl = Editor::<()>::new();
-    utils::build_local_dir()?;
+    utils::build_local_calc_dir()?;
     let history_file_path = utils::get_local_calc_dir()?.join("history.txt");
     let _ = rl.load_history(&history_file_path);
 

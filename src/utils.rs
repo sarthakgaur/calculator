@@ -21,6 +21,7 @@ pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
                     let mut last = operator_stack
                         .pop()
                         .ok_or_else(|| anyhow!("operator_stack empty."))?;
+
                     let is_open = last.name == OperatorName::OpenParenthesis;
 
                     while !operator_stack.is_empty() && !is_open {
@@ -38,6 +39,7 @@ pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
                         let last_op = operator_stack
                             .pop()
                             .ok_or_else(|| anyhow!("operator_stack empty."))?;
+
                         output_stack.push(Token::Operator(last_op));
                         last = operator_stack.last();
                     }
@@ -52,6 +54,7 @@ pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
         let operator = operator_stack
             .pop()
             .ok_or_else(|| anyhow!("operator_stack empty."))?;
+
         output_stack.push(Token::Operator(operator));
     }
 
@@ -70,7 +73,7 @@ pub fn get_local_calc_dir() -> PathBuf {
 }
 
 #[throws(anyhow::Error)]
-pub fn build_local_dir() {
+pub fn build_local_calc_dir() {
     let local_calc_dir = get_local_calc_dir()?;
     create_dir_all(&local_calc_dir)?;
 }

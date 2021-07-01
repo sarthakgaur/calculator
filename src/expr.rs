@@ -6,8 +6,8 @@ use crate::token::{Operator, OperatorName, Token};
 use crate::utils;
 
 pub struct Expression {
-    num_set: bool,
-    oper_set: bool,
+    is_num_set: bool,
+    is_oper_set: bool,
     extra_opers: usize,
     paren_count: isize,
     tokens: Vec<Token>,
@@ -16,8 +16,8 @@ pub struct Expression {
 impl Expression {
     pub fn new() -> Expression {
         Expression {
-            num_set: false,
-            oper_set: false,
+            is_num_set: false,
+            is_oper_set: false,
             extra_opers: 0,
             paren_count: 0,
             tokens: Vec::new(),
@@ -26,44 +26,32 @@ impl Expression {
 
     #[throws(anyhow::Error)]
     pub fn add_num(&mut self, num: f64) {
-        if !self.num_set {
+        if !self.is_num_set {
             self.set_num(num);
-        } else if self.oper_set {
+        } else if self.is_oper_set {
             self.set_num(num);
-            self.oper_set = false;
+            self.is_oper_set = false;
         } else {
             bail!("Invalid expression.")
         }
     }
 
     #[throws(anyhow::Error)]
-    pub fn add_operator(&mut self, oper: Operator) {
-        if !self.num_set || self.oper_set {
+    pub fn add_oper(&mut self, oper: Operator) {
+        if !self.is_num_set || self.is_oper_set {
             match oper.name {
                 OperatorName::Add => (),
                 OperatorName::Subtract => self.extra_opers += 1,
-                _ => bail!("Invalid operator position."),
+                _ => bail!("Invalid expression."),
             }
         } else {
-            self.oper_set = true;
+            self.is_oper_set = true;
             self.tokens.push(Token::Operator(oper));
         }
     }
 
-    pub fn handle_extra_ops(&mut self, num: f64) -> f64 {
-        let update_num = if self.extra_opers % 2 == 0 {
-            num
-        } else {
-            num * -1.0
-        };
-
-        self.extra_opers = 0;
-
-        update_num
-    }
-
     #[throws(anyhow::Error)]
-    pub fn handle_paren(&mut self, oper_name: OperatorName) {
+    pub fn add_paren(&mut self, oper_name: OperatorName) {
         match oper_name {
             OperatorName::OpenParenthesis => self.paren_count += 1,
             OperatorName::CloseParenthesis => self.paren_count -= 1,
@@ -73,7 +61,7 @@ impl Expression {
 
     #[throws(anyhow::Error)]
     pub fn eval(&self) -> f64 {
-        if !self.num_set {
+        if !self.is_num_set {
             bail!("Number not found in expression.");
         } else if self.paren_count != 0 {
             bail!("Unbalanced parentheses.")
@@ -86,8 +74,20 @@ impl Expression {
     }
 
     fn set_num(&mut self, num: f64) {
-        self.num_set = true;
-        let update_num = self.handle_extra_ops(num);
+        self.is_num_set = true;
+        let update_num = self.handle_extra_opers(num);
         self.tokens.push(Token::Number(update_num));
+    }
+
+    fn handle_extra_opers(&mut self, num: f64) -> f64 {
+        let update_num = if self.extra_opers % 2 == 0 {
+            num
+        } else {
+            num * -1.0
+        };
+
+        self.extra_opers = 0;
+
+        update_num
     }
 }
