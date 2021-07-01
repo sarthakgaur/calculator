@@ -53,10 +53,10 @@ pub fn eval_postfix(tokens: Vec<Token>) -> f64 {
             Token::Operator(oper) => {
                 let n2 = eval_stack
                     .pop()
-                    .ok_or_else(|| anyhow!("eval_stack empty."))?;
+                    .ok_or_else(|| anyhow!("Error occurred while evaluating."))?;
                 let n1 = eval_stack
                     .pop()
-                    .ok_or_else(|| anyhow!("eval_stack empty."))?;
+                    .ok_or_else(|| anyhow!("Error occurred while evaluating."))?;
                 let res = calc(&n1, &n2, &oper);
                 eval_stack.push(res?);
             }
@@ -65,7 +65,7 @@ pub fn eval_postfix(tokens: Vec<Token>) -> f64 {
 
     match eval_stack
         .pop()
-        .ok_or_else(|| anyhow!("eval_stack empty."))?
+        .ok_or_else(|| anyhow!("Error occurred while evaluating."))?
     {
         Token::Number(n) => n,
         _ => bail!("Error occurred while evaluating."),

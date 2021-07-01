@@ -9,7 +9,7 @@ pub struct Expression {
     num_set: bool,
     oper_set: bool,
     extra_opers: usize,
-    paren_count: usize,
+    paren_count: isize,
     tokens: Vec<Token>,
 }
 
