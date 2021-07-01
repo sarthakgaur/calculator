@@ -9,5 +9,5 @@
 09. Fix clippy warnings. Done.
 10. Improve error handling. Done.
 11. Add rustyline. Done.
-12. Add README.md.
-12. Add identifiers support.
+12. Add README.md. Done.
+13. Add identifiers support.
