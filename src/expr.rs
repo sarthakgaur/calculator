@@ -1,8 +1,9 @@
+use anyhow::bail;
+use fehler::throws;
+
 use crate::eval;
 use crate::token::{Operator, OperatorName, Token};
 use crate::utils;
-use anyhow::bail;
-use fehler::throws;
 
 pub struct Expression {
     num_set: bool,

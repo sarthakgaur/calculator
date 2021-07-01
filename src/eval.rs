@@ -1,7 +1,8 @@
-use crate::expr::Expression;
-use crate::token::{Operator, OperatorName, Token};
 use anyhow::{anyhow, bail};
 use fehler::throws;
+
+use crate::expr::Expression;
+use crate::token::{Operator, OperatorName, Token};
 
 #[throws(anyhow::Error)]
 pub fn eval_expr(tokens: &[Token]) -> f64 {
@@ -88,6 +89,7 @@ fn calc(t1: &Token, t2: &Token, oper: &Operator) -> Token {
         OperatorName::Subtract => n1 - n2,
         OperatorName::Multiply => n1 * n2,
         OperatorName::Divide => n1 / n2,
+        OperatorName::Exponentiation => f64::powf(*n1, *n2),
         _ => bail!("Invalid operator."),
     };
 

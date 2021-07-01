@@ -12,10 +12,11 @@ pub struct Operator {
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum OperatorName {
+    OpenParenthesis,
+    CloseParenthesis,
     Add,
     Subtract,
     Multiply,
     Divide,
-    OpenParenthesis,
-    CloseParenthesis,
+    Exponentiation,
 }
