@@ -20,7 +20,7 @@ pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
                 OperatorName::CloseParenthesis => {
                     let mut last = operator_stack
                         .pop()
-                        .ok_or_else(|| anyhow!("operator_stack empty."))?;
+                        .ok_or_else(|| anyhow!("Invalid expression."))?;
 
                     let is_open = last.name == OperatorName::OpenParenthesis;
 
@@ -28,7 +28,7 @@ pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
                         output_stack.push(Token::Operator(last));
                         last = operator_stack
                             .pop()
-                            .ok_or_else(|| anyhow!("operator_stack empty."))?;
+                            .ok_or_else(|| anyhow!("Invalid expression."))?;
                     }
                 }
                 _ => {
@@ -38,7 +38,7 @@ pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
                     while last.is_some() && last.unwrap().precedence >= current_prec {
                         let last_op = operator_stack
                             .pop()
-                            .ok_or_else(|| anyhow!("operator_stack empty."))?;
+                            .ok_or_else(|| anyhow!("Invalid expression."))?;
 
                         output_stack.push(Token::Operator(last_op));
                         last = operator_stack.last();
@@ -54,7 +54,7 @@ pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
     while !operator_stack.is_empty() {
         let operator = operator_stack
             .pop()
-            .ok_or_else(|| anyhow!("operator_stack empty."))?;
+            .ok_or_else(|| anyhow!("Invalid expression."))?;
 
         output_stack.push(Token::Operator(operator));
     }
@@ -64,7 +64,7 @@ pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
 
 #[throws(anyhow::Error)]
 pub fn get_home_dir() -> PathBuf {
-    dirs::home_dir().ok_or_else(|| anyhow!("Could not get you home directoyr."))?
+    dirs::home_dir().ok_or_else(|| anyhow!("Could not get your home directory."))?
 }
 
 #[throws(anyhow::Error)]
