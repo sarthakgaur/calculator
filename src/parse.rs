@@ -15,26 +15,26 @@ pub fn parse_expr(expr: &str) -> Vec<Token> {
     for ch in expr.chars() {
         if ch.is_alphabetic() && num_buffer.len() == 0 {
             ident_buffer.push(ch);
-            push_num(&mut tokens, &mut num_buffer);
+            push_num(&mut tokens, &mut num_buffer)?;
         } else if ch.is_alphanumeric() && ident_buffer.len() > 0 {
             ident_buffer.push(ch);
         } else if ch.is_digit(10) || ch == '.' {
             num_buffer.push(ch);
         } else if oper_map.contains_key(&ch) {
             push_ident(&mut tokens, &mut ident_buffer);
-            push_num(&mut tokens, &mut num_buffer);
+            push_num(&mut tokens, &mut num_buffer)?;
             let op = oper_map.get(&ch).unwrap().clone();
             tokens.push(Token::Operator(op));
         } else if ch == ' ' {
             push_ident(&mut tokens, &mut ident_buffer);
-            push_num(&mut tokens, &mut num_buffer);
+            push_num(&mut tokens, &mut num_buffer)?;
         } else {
             bail!("Unexpected token found.");
         }
     }
 
     push_ident(&mut tokens, &mut ident_buffer);
-    push_num(&mut tokens, &mut num_buffer);
+    push_num(&mut tokens, &mut num_buffer)?;
 
     tokens
 }
@@ -101,12 +101,17 @@ fn get_oper_map() -> HashMap<char, Operator> {
     op_map
 }
 
+#[throws(anyhow::Error)]
 fn push_num(tokens: &mut Vec<Token>, num_buffer: &mut Vec<char>) {
     if !num_buffer.is_empty() {
         let num_str: String = num_buffer.iter().collect();
-        let num: f64 = num_str
-            .parse()
-            .expect("Error occurred while parsing a number.");
+        let num_res = num_str.parse::<f64>();
+
+        let num = match num_res {
+            Ok(n) => n,
+            _ => bail!("Error occurred while parsing a number."),
+        };
+
         tokens.push(Token::Number(num));
         num_buffer.clear();
     }

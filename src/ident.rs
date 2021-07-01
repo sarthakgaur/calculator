@@ -64,7 +64,7 @@ fn parse_assignment(assignment: &str) -> (&str, f64) {
     let num_res = tokens[1].parse::<f64>();
 
     let num = match num_res {
-        Ok(res) => res,
+        Ok(n) => n,
         _ => bail!("Invalid use of assignment"),
     };
 
