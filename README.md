@@ -2,8 +2,8 @@
 A command line calculator written in Rust.
 
 ## Installation
-1. `git clone https://github.com/sarthakgaur/calculator`
-2. `cd calculator`
+1. `git clone https://github.com/sarthakgaur/calc`
+2. `cd calc`
 3. `cargo build --release`
 4. The executable is located in `target/release`
 
