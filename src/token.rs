@@ -2,6 +2,7 @@
 pub enum Token {
     Number(f64),
     Operator(Operator),
+    Identifier(String),
 }
 
 #[derive(Clone, PartialEq, Debug)]

@@ -27,6 +27,7 @@ pub fn eval_postfix(tokens: Vec<Token>) -> f64 {
                 let res = calc(&n1, &n2, &oper);
                 eval_stack.push(res?);
             }
+            Token::Identifier(_) => bail!("Invalid expression."),
         }
     }
 
@@ -64,6 +65,7 @@ fn _eval_expr(tokens: &[Token], index: &mut usize, inside_paren: bool) -> f64 {
                     expr.add_oper(oper.clone())?;
                 }
             },
+            Token::Identifier(_) => bail!("Invalid expression."),
         }
 
         *index += 1;

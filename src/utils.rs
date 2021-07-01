@@ -1,7 +1,7 @@
 use std::fs::create_dir_all;
 use std::path::PathBuf;
 
-use anyhow::anyhow;
+use anyhow::{anyhow, bail};
 use fehler::throws;
 
 use crate::token::{Operator, OperatorName, Token};
@@ -47,6 +47,7 @@ pub fn get_postfix(tokens: &[Token]) -> Vec<Token> {
                     operator_stack.push(operator);
                 }
             },
+            Token::Identifier(_) => bail!("Invalid expression."),
         }
     }
 
