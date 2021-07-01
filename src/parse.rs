@@ -13,10 +13,10 @@ pub fn parse_expr(expr: &str) -> Vec<Token> {
     let oper_map = get_oper_map();
 
     for ch in expr.chars() {
-        if ch.is_alphabetic() && num_buffer.len() == 0 {
+        if ch.is_alphabetic() && ident_buffer.is_empty() {
             ident_buffer.push(ch);
             push_num(&mut tokens, &mut num_buffer)?;
-        } else if ch.is_alphanumeric() && ident_buffer.len() > 0 {
+        } else if ch.is_alphanumeric() && !ident_buffer.is_empty() {
             ident_buffer.push(ch);
         } else if ch.is_digit(10) || ch == '.' {
             num_buffer.push(ch);

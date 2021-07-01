@@ -27,7 +27,7 @@ fn main() {
             Ok(expr) => {
                 rl.add_history_entry(&expr);
 
-                if expr.contains("=") {
+                if expr.contains('=') {
                     match ident::parse_idents(&expr, &mut idents) {
                         Ok(_) => (),
                         Err(error) => eprintln!("Error occurred: {}", error),
