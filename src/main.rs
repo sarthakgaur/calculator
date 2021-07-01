@@ -72,12 +72,12 @@ fn main() {
                 break;
             }
 
-            Err(err) => {
-                println!("Error: {:?}", err);
+            Err(error) => {
+                println!("Error: {:?}", error);
                 break;
             }
         }
-
-        rl.save_history(&history_file_path)?;
     }
+
+    rl.save_history(&history_file_path)?;
 }
